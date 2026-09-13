@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
 const EventEmitter = require('events');
 
 class TranscriptService extends EventEmitter {
@@ -425,6 +424,10 @@ class TranscriptService extends EventEmitter {
             this.emit('new_items', newItems);
           }
         });
+
+        stream.on('error', (err) => {
+          console.error(`[Transcript] Stream read error: ${err.message}`);
+        });
       }
 
       // Check plan artifacts updates
@@ -485,8 +488,19 @@ class TranscriptService extends EventEmitter {
 
 
   stop() {
-    if (this.pollInterval) clearInterval(this.pollInterval);
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
   }
 }
 
-module.exports = new TranscriptService();
+const transcriptService = new TranscriptService();
+
+// Clean up poll interval on process exit
+process.on('exit', () => transcriptService.stop());
+process.on('SIGINT', () => { transcriptService.stop(); process.exit(0); });
+process.on('SIGTERM', () => { transcriptService.stop(); process.exit(0); });
+
+module.exports = transcriptService;
+

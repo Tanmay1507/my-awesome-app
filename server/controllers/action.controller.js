@@ -4,6 +4,7 @@ const websocketService = require('../services/websocket.service');
 class ActionController {
   constructor() {
     this.pendingStep = null;
+    this.latestDecision = null;
   }
 
   // Handle toggles (auto_run, auto_allow)

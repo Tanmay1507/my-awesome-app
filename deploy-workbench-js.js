@@ -576,7 +576,7 @@ const CONTROLLER_CODE = `
     const clean = text.trim();
     if (!clean || clean === '/run' || clean === '/reject' || clean === '/allow' || clean === '/skip') return false;
     const now = Date.now();
-    if (clean === lastExecutedText && (now - lastExecutedTime) < 4000) {
+    if (clean === lastExecutedText && (now - lastExecutedTime) < 6000) {
       return false;
     }
     lastExecutedText = clean;
@@ -611,19 +611,29 @@ const CONTROLLER_CODE = `
             const pData = await pRes.json();
             if (pData && pData.latestPrompt && pData.latestPrompt.prompt) {
               const promptText = pData.latestPrompt.prompt;
-              fetch(BRIDGE_URL + '/api/prompt/clear', { method: 'POST' }).catch(() => {});
+              // FIX: Call shouldExecutePrompt() FIRST (sets dedup lock synchronously)
+              // BEFORE the async clear, so the port-5000 path below cannot fire
+              // the same text in the same or next poll tick -> prevents new convo creation.
               if (shouldExecutePrompt(promptText)) {
                 isExecuting = true;
+                // Clear bridge queue (non-blocking, dedup lock already set above)
+                fetch(BRIDGE_URL + '/api/prompt/clear', { method: 'POST' }).catch(() => {});
                 typeAndSubmitPrompt(promptText);
-                setTimeout(() => { isExecuting = false; }, 1000);
+                // FIX: Extend lock to 2s to cover all multi-stage submit events (up to 450ms)
+                // plus one full polling cycle overlap margin
+                setTimeout(() => { isExecuting = false; }, 2000);
                 return;
+              } else {
+                // Already deduped — still clear queue so stale prompt does not linger
+                fetch(BRIDGE_URL + '/api/prompt/clear', { method: 'POST' }).catch(() => {});
               }
             }
           }
         } catch(e) {}
       }
 
-      // Check Port 5000
+      // Check Port 5000 — only runs if bridge path did NOT handle the prompt above.
+      // shouldExecutePrompt() dedup lock will block the same text from firing again.
       if (isExecuting) return;
       try {
         const res = await fetch(EXT_URL + '/get_command');
@@ -641,10 +651,11 @@ const CONTROLLER_CODE = `
         }
 
         const text = data.text || data.command;
+        // If bridge path already locked this text, shouldExecutePrompt returns false here
         if (shouldExecutePrompt(text)) {
           isExecuting = true;
           typeAndSubmitPrompt(text);
-          setTimeout(() => { isExecuting = false; }, 1000);
+          setTimeout(() => { isExecuting = false; }, 2000);
         }
       } catch(e) {}
     } catch(err) {}

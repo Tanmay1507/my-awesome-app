@@ -73,20 +73,24 @@ class WebSocketService {
       const canvasState = transcriptService.getState();
 
       // Send initial handshake state & full agent canvas trajectory
-      clientWs.send(JSON.stringify({
-        type: 'bridge_init',
-        ideWsConnected: this.ideWsConnected,
-        ideRestReachable: antigravityService.isRestReachable,
-        toggles: antigravityService.getCachedToggles(),
-        conversationId: canvasState.conversationId,
-        conversationTitle: canvasState.conversationTitle,
-        conversations: canvasState.conversations,
-        canvasItems: canvasState.items,
-        plan: canvasState.plan,
-        walkthrough: canvasState.walkthrough,
-        history: this.eventHistory.slice(-40),
-        timestamp: new Date().toISOString(),
-      }));
+      try {
+        clientWs.send(JSON.stringify({
+          type: 'bridge_init',
+          ideWsConnected: this.ideWsConnected,
+          ideRestReachable: antigravityService.isRestReachable,
+          toggles: antigravityService.getCachedToggles(),
+          conversationId: canvasState.conversationId,
+          conversationTitle: canvasState.conversationTitle,
+          conversations: canvasState.conversations,
+          canvasItems: canvasState.items,
+          plan: canvasState.plan,
+          walkthrough: canvasState.walkthrough,
+          history: this.eventHistory.slice(-40),
+          timestamp: new Date().toISOString(),
+        }));
+      } catch (err) {
+        console.warn(`[WS] bridge_init send failed (client may have disconnected): ${err.message}`);
+      }
 
       clientWs.on('pong', () => {
         clientWs.isAlive = true;
