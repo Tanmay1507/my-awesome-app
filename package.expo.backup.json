@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo/ui": "~57.0.17",
-    "cors": "^2.8.6",
     "expo": "~57.0.21",
     "expo-constants": "~57.0.17",
     "expo-device": "~57.0.1",
@@ -18,7 +17,6 @@
     "expo-symbols": "~57.0.2",
     "expo-system-ui": "~57.0.3",
     "expo-web-browser": "~57.0.2",
-    "express": "^5.2.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.3",
@@ -27,19 +25,13 @@
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
     "react-native-web": "~0.21.0",
-    "react-native-worklets": "0.10.1",
-    "ws": "^8.21.3"
+    "react-native-worklets": "0.10.1"
   },
   "devDependencies": {
-    "@types/node": "^22.20.2",
     "@types/react": "~19.2.2",
-    "eslint": "^9.0.0",
-    "eslint-config-expo": "~57.0.2",
     "typescript": "~6.0.3"
   },
   "scripts": {
-    "dev": "node --watch server.js",
-    "server": "node server.js",
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",

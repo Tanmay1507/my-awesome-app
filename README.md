@@ -1,56 +1,102 @@
-# Welcome to your Expo app 👋
+# 🚀 Antigravity Mobile Remote Controller (MVP)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A lightweight, mobile-responsive web application and bridge server designed to remotely prompt, control, and monitor your local **Google Antigravity IDE** from your smartphone (iOS Safari / Android Chrome).
 
-## Get started
+Inspired by modern, tactile OLED dark UI designs, featuring high-contrast typography, interactive bento action cards, real-time activity stream, and instant phone pairing.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 📱 Features
 
-2. Start the app
+- **OLED Dark Bento Aesthetic**: Minimalist deep black (`#000000`) theme with tactile rounded cards (`rounded-[26px]`), circular SVG rings, and glassmorphic floating input dock.
+- **Bi-directional WebSocket Relay**: Relays live agent tokens, thoughts, and tool execution logs from `ws://127.0.0.1:9812` to your phone with exponential backoff auto-reconnect.
+- **Action Toggles**:
+  - `⚡ Auto-Run`: Fast toggle for autonomous tool execution.
+  - `🛡️ Auto-Allow`: Fast toggle for permission bypass.
+- **Terminal & Prompt Stream**:
+  - Live syntax-highlighted code blocks with one-tap copy.
+  - Auto-scroll lock with floating "Jump to latest" button.
+  - Quick prompt chips (`Run Tests`, `Git Status`, `Auto-Fix`, `Status`).
+- **Resilience & Safety**:
+  - Explicit warning banner when Antigravity port 5000 is unreachable.
+  - 25-second WebSocket heartbeat / ping-pong to prevent mobile browsers from dropping the connection while idling.
+- **Instant Pairing**:
+  - Built-in QR code generator in the settings modal for instantaneous phone connection over local Wi-Fi.
+  - PWA-ready: "Add to Home Screen" on iOS Safari and Android Chrome for a full-screen app experience.
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## 🛠️ Prerequisites
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Ensure Google Antigravity IDE is running locally with its companion automation extension:
+- **REST Port**: `http://127.0.0.1:5000`
+- **WebSocket Port**: `ws://127.0.0.1:9812`
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## 🚀 Quick Start
 
-When you're ready, run:
-
+### 1. Install Dependencies
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Start the Bridge Server
+```bash
+npm start
+```
+*(Or for auto-reload during development: `npm run dev`)*
 
-### Other setup steps
+When started, the server outputs your local and network URLs:
+```text
+======================================================
+🚀 Antigravity Mobile Remote Bridge Server Active!
+======================================================
+💻 Local:            http://localhost:3000
+📱 Mobile (Wi-Fi):   http://192.168.1.15:3000
+⚡ Upstream REST:    http://127.0.0.1:5000
+📡 Upstream WS:      ws://127.0.0.1:9812
+======================================================
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+---
 
-## Learn more
+## 📱 Connecting Your Phone
 
-To learn more about developing your project with Expo, look at the following resources:
+### Option A: Local Wi-Fi (Same Network)
+1. Ensure your phone is connected to the same Wi-Fi network as your computer.
+2. Open `http://localhost:3000` on your desktop browser.
+3. Click the **Sliders / Settings** icon (`⚙️` / `Sliders`) in the top-right header to view the **QR Code**.
+4. Scan the QR code with your phone camera (or manually open `http://<YOUR_LOCAL_IP>:3000` in Safari or Chrome).
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Option B: Cellular / Remote Access (via Ngrok)
+To access Antigravity Remote while outside your home network or on cellular data:
+```bash
+npx ngrok http 3000
+```
+Copy the generated `https://xxxx.ngrok-free.app` URL and open it on your phone.
 
-## Join the community
+### Option C: Cloudflare Tunnel (Free & No Account Needed)
+```bash
+npx untun@latest tunnel http://localhost:3000
+```
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 📲 Add to Home Screen (PWA Mode)
+- **iOS (Safari)**: Tap the **Share** button (box with arrow pointing up) → tap **Add to Home Screen** → tap **Add**.
+- **Android (Chrome)**: Tap the three-dot menu `⋮` → tap **Add to Home screen** / **Install app**.
+
+---
+
+## 📂 Codebase Architecture
+
+```text
+├── server.js              # Express HTTP server + WebSocket relay + backoff + health probe
+├── public/
+│   ├── index.html         # Single Page Mobile Web UI (Tailwind CDN, Lucide, Marked, Highlight.js, QR)
+│   ├── manifest.json      # PWA Web App Manifest
+│   └── icon.svg           # High-resolution vector app icon
+├── package.json           # Dependencies: express, ws, cors
+└── README.md
+```
