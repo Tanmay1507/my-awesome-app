@@ -1,16 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events');
+const config = require('../config/config');
 
 class TranscriptService extends EventEmitter {
   constructor() {
     super();
-    this.baseBrainDir = path.join(
-      process.env.USERPROFILE || 'C:\\Users\\tanmay Wagh',
-      '.gemini',
-      'antigravity-ide',
-      'brain'
-    );
+    this.baseBrainDir = config.BRAIN_DIR;
     this.activeConversationId = null;
     this.activeConversationDir = null;
     this.transcriptPath = null;

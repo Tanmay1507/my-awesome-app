@@ -43,21 +43,13 @@ interface ConversationItem {
   updatedFormatted?: string;
 }
 
-export default function AntigravityRemoteScreen() {
-  // Determine default server base URL
-  const getDefaultServerUrl = () => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      return window.location.origin;
-    }
-    const debuggerHost = Constants.expoConfig?.hostUri;
-    if (debuggerHost) {
-      const ip = debuggerHost.split(':')[0];
-      return `http://${ip}:3000`;
-    }
-    return 'http://10.76.102.117:3000';
-  };
+import { useRouter } from 'expo-router';
+import { useAuth } from '@/context/auth-context';
 
-  const [serverUrl, setServerUrl] = useState(getDefaultServerUrl());
+export default function AntigravityRemoteScreen() {
+  const router = useRouter();
+  const { user, session, serverUrl, setServerUrl } = useAuth();
+
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [configUrlInput, setConfigUrlInput] = useState(serverUrl);
 
@@ -600,6 +592,29 @@ export default function AntigravityRemoteScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* SCOPED SESSION & AUTH STATUS BANNER */}
+        <View style={styles.sessionStatusBanner}>
+          <View style={styles.sessionStatusLeft}>
+            <View style={[styles.sessionStatusDot, session ? styles.dotGreen : user ? styles.dotYellow : styles.dotDim]} />
+            <Text style={styles.sessionStatusText} numberOfLines={1}>
+              {session
+                ? `Paired: ${session.agentName}`
+                : user
+                ? `Logged in: @${user.username} (Unpaired)`
+                : 'Local / Direct Relay'}
+            </Text>
+          </View>
+          <View style={styles.sessionStatusRight}>
+            <TouchableOpacity
+              style={styles.sessionActionBtn}
+              onPress={() => router.push(user ? (session ? '/pair' : '/pair') : '/login')}>
+              <Text style={styles.sessionActionText}>
+                {session ? 'Session (24h) ⇄' : user ? 'Pair (90s Code)' : 'Sign In 🐙'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* QUICK ACTION BAR */}
         <View style={styles.quickBar}>
           <TouchableOpacity
@@ -964,8 +979,57 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 6,
   },
+  dotYellow: {
+    backgroundColor: '#f59e0b',
+  },
+  dotDim: {
+    backgroundColor: '#52525b',
+  },
   dotRed: {
     backgroundColor: '#ef4444',
+  },
+  sessionStatusBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.four,
+    paddingVertical: 6,
+    backgroundColor: '#0d0d10',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  sessionStatusLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flex: 1,
+  },
+  sessionStatusDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+  },
+  sessionStatusText: {
+    color: '#a1a1aa',
+    fontSize: 11,
+    fontWeight: '600',
+    flex: 1,
+  },
+  sessionStatusRight: {
+    marginLeft: 8,
+  },
+  sessionActionBtn: {
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  sessionActionText: {
+    color: '#38bdf8',
+    fontSize: 10,
+    fontWeight: '700',
   },
   serverBadge: {
     paddingHorizontal: 8,

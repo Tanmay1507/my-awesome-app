@@ -63,9 +63,9 @@ class AntigravityService {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      throw new Error(`Antigravity Extension returned status ${res.status}`);
+      throw new Error(data.error || `Antigravity Extension returned status ${res.status}`);
     }
     if (typeof data.auto_run === 'boolean') {
       this.cachedToggles.auto_run = data.auto_run;
@@ -80,9 +80,9 @@ class AntigravityService {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      throw new Error(`Antigravity Extension returned status ${res.status}`);
+      throw new Error(data.error || `Antigravity Extension returned status ${res.status}`);
     }
     if (typeof data.auto_allow === 'boolean') {
       this.cachedToggles.auto_allow = data.auto_allow;
