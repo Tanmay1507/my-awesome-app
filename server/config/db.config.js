@@ -1,3 +1,14 @@
+const fs = require('fs');
+const path = require('path');
+
+// Auto-load .env file if available
+const envPath = path.resolve(process.cwd(), '.env');
+if (fs.existsSync(envPath) && process.loadEnvFile) {
+  try {
+    process.loadEnvFile(envPath);
+  } catch {}
+}
+
 module.exports = {
   mysql: {
     host: process.env.MYSQL_HOST || '127.0.0.1',

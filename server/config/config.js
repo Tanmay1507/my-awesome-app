@@ -1,5 +1,14 @@
 const path = require('path');
 const os = require('os');
+const fs = require('fs');
+
+// Auto-load .env file if available
+const envPath = path.resolve(process.cwd(), '.env');
+if (fs.existsSync(envPath) && process.loadEnvFile) {
+  try {
+    process.loadEnvFile(envPath);
+  } catch {}
+}
 
 module.exports = {
   PORT: process.env.PORT || 3000,

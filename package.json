@@ -45,7 +45,7 @@
     "db:migrate": "node server/db/migrate.js",
     "tunnel": "npx untun@latest tunnel http://localhost:3000",
     "start": "expo start",
-    "build:apk": "eas build -p android --profile preview",
+    "build:apk": "npx eas-cli build -p android --profile preview",
     "build:apk:local": "npx expo run:android --variant release",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
